@@ -11,6 +11,8 @@
 					mc:Ignorable="d">
 
 	<!-- This is the icon that appears when the action resource is given during CC/level up and used on IUI_ActionResourceDecorativeIcon -->
+    <BitmapImage x:Key="IUI_GenericResourceIcon" UriSource="pack://application:,,,/GustavNoesisGUI;component/Assets/Shared/ico_red_star.png"/>
+
     <!--<BitmapImage x:Key="ActionPointIcon" UriSource="pack://application:,,,/GustavNoesisGUI;component/Assets/CC/icons_resources/ap_d.png" />-->
 	<BitmapImage x:Key="PsiPointIcon" UriSource="pack://application:,,,/GustavNoesisGUI;component/Assets/CC/icons_resources/ico_classRes_psipoint.png" />
 	<BitmapImage x:Key="InfusionSlotIcon" UriSource="pack://application:,,,/GustavNoesisGUI;component/Assets/Artificer/Shared/Resources/ico_classRes_infusion_d.png" />
@@ -56,7 +58,32 @@
 
 	<!-- This is the icon that appears on the tooltip -->
 	<Style TargetType="Image" x:Key="IUI_ActionResourceTypeIdToSource">
+        <Setter Property="Source">
+            <Setter.Value>
+                <MultiBinding Converter="{StaticResource IconIdToSourceConverter}" FallbackValue="{StaticResource IUI_GenericResourceIcon}">
+                    <Binding Source="Assets/Shared/Resources/"/>
+                    <Binding Path="TypeId"/>
+                </MultiBinding>
+            </Setter.Value>
+        </Setter>
         <Style.Triggers>
+            <MultiDataTrigger>
+                <MultiDataTrigger.Conditions>
+                    <Condition Binding="{Binding Value}" Value="0"/>
+                    <Condition Binding="{Binding IgnoreCost}" Value="False"/>
+                </MultiDataTrigger.Conditions>
+                <MultiDataTrigger.Setters>
+                    <Setter Property="Source">
+                        <Setter.Value>
+                            <MultiBinding Converter="{StaticResource IconIdToSourceConverter}" FallbackValue="{StaticResource IUI_GenericResourceIcon}">
+                                <Binding Source="Assets/Shared/Resources/"/>
+                                <Binding Path="TypeId"/>
+                                <Binding Source="_missing"/>
+                            </MultiBinding>
+                        </Setter.Value>
+                    </Setter>
+                </MultiDataTrigger.Setters>
+            </MultiDataTrigger>
             <!--<DataTrigger Binding="{Binding TypeId}" Value="ActionPoint">
                 <Setter Property="Source" Value="{StaticResource IconActionPoint}"/>
             </DataTrigger>       
@@ -211,7 +238,7 @@
         <ContentControl ContentTemplate="{StaticResource ActionResources.ActionGroup.ActionPoint}"/>
     </ControlTemplate>
 
-    	<ControlTemplate x:Key="ActionResources.ActionGroup.ConfluxFocusGroup" TargetType="ls:LSActionPoint">
+    <ControlTemplate x:Key="ActionResources.ActionGroup.ConfluxFocusGroup" TargetType="ls:LSActionPoint">
 		<ControlTemplate.Resources>
             <ImageSource x:Key="Highlight">/GustavNoesisGUI;component/Assets/Magus/Shared/Resources/ico_ConfluxFocus.png</ImageSource>
             <ImageSource x:Key="Available">/GustavNoesisGUI;component/Assets/Magus/Shared/Resources/ico_ConfluxFocus.png</ImageSource>
@@ -221,8 +248,50 @@
         <ContentControl ContentTemplate="{StaticResource ActionResources.ActionGroup.ActionPoint}"/>
     </ControlTemplate>
 
+    <ControlTemplate x:Key="ActionResources.ActionGroup.DynamicPointGroup" TargetType="ls:LSActionPoint" />
+
 	<!-- This is the icon that appears on the hotbar -->
 	<Style x:Key="IUI_ActionResourcesTemplateSelector" TargetType="ls:LSActionPointResources" BasedOn="{StaticResource {x:Type ls:LSActionPointResources}}">
+        <Setter Property="ActionPointTemplate">
+            <Setter.Value>
+                <ControlTemplate TargetType="ls:LSActionPoint">
+                    <ControlTemplate.Resources>
+                        <ImageSource x:Key="Highlight">
+                            <MultiBinding Converter="{StaticResource IconIdToSourceConverter}" FallbackValue="{StaticResource IUI_GenericResourceIcon}">
+                                <Binding Source="Assets/Shared/Resources/ico_classRes_"/>
+                                <Binding Path="TypeId"/>
+                                <Binding Source="_h"/>
+                            </MultiBinding>
+                        </ImageSource>
+                        <ImageSource x:Key="Available">
+                            <MultiBinding Converter="{StaticResource IconIdToSourceConverter}" FallbackValue="{StaticResource IUI_GenericResourceIcon}">
+                                <Binding Source="Assets/Shared/Resources/ico_classRes_"/>
+                                <Binding Path="TypeId"/>
+                                <Binding Source="_d"/>
+                            </MultiBinding>
+                        </ImageSource>
+                        <ImageSource x:Key="Used">
+                            <MultiBinding Converter="{StaticResource IconIdToSourceConverter}" FallbackValue="{StaticResource IUI_GenericResourceIcon}">
+                                <Binding Source="Assets/Shared/Resources/ico_classRes_"/>
+                                <Binding Path="TypeId"/>
+                                <Binding Source="_spent"/>
+                            </MultiBinding>
+                        </ImageSource>
+                        <ImageSource x:Key="Missing">
+                            <MultiBinding Converter="{StaticResource IconIdToSourceConverter}" FallbackValue="{StaticResource IUI_GenericResourceIcon}">
+                                <Binding Source="Assets/Shared/Resources/ico_classRes_"/>
+                                <Binding Path="TypeId"/>
+                                <Binding Source="_missing"/>
+                            </MultiBinding>
+                        </ImageSource>
+                    </ControlTemplate.Resources>
+                    <ContentControl ContentTemplate="{StaticResource ActionResources.ActionGroup.ActionPoint}"/>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+        <Setter Property="MaxGroupActionPoints" Value="1"/>
+        <Setter Property="ActionPointSize" Value="{DynamicResource ActionResources.ActionPointSize}" />
+        
         <Style.Triggers>
             <!--<DataTrigger Binding="{Binding TypeId}" Value="SorceryPoint">
                 <Setter Property="ActionPointTemplate" Value="{DynamicResource ActionResources.ActionGroup.SorceryPointGroup}"/>
